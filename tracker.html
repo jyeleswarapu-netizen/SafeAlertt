@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>SafeAlert Emergency Tracker</title>
+
+<link
+rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#111;
+color:white;
+overflow:hidden;
+}
+
+#alertBar{
+
+position:fixed;
+
+top:0;
+left:0;
+right:0;
+
+background:#c40000;
+
+padding:18px;
+
+text-align:center;
+
+font-size:22px;
+
+font-weight:bold;
+
+animation:flash 1s infinite;
+
+z-index:1000;
+
+}
+
+@keyframes flash{
+
+0%{background:#c40000;}
+
+50%{background:#ff0000;}
+
+100%{background:#c40000;}
+
+}
+
+#info{
+
+position:absolute;
+
+top:80px;
+
+left:10px;
+
+right:10px;
+
+background:white;
+
+color:black;
+
+padding:18px;
+
+border-radius:15px;
+
+z-index:999;
+
+box-shadow:0 5px 20px rgba(0,0,0,.3);
+
+}
+
+#info h2{
+
+margin-bottom:10px;
+
+color:#d50000;
+
+}
+
+#map{
+
+position:absolute;
+
+top:340px;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+}
+
+button{
+
+width:100%;
+
+padding:14px;
+
+margin-top:10px;
+
+border:none;
+
+border-radius:12px;
+
+font-size:16px;
+
+color:white;
+
+cursor:pointer;
+
+}
+
+.call{
+
+background:#1976ff;
+
+}
+
+.navigate{
+
+background:#00a651;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="alertBar">
+
+🚨 EMERGENCY ALERT 🚨
+
+</div>
+
+<div id="info">
+
+<h2 id="victimName">
+
+Unknown User
+
+</h2>
+
+<p>
+
+📞
+<span id="victimPhone">
+-
+</span>
+
+</p>
+
+<br>
+
+<p>
+
+🕒 Last Updated:
+
+<span id="lastUpdate">
+
+Waiting...
+
+</span>
+
+</p>
+
+<br>
+  
+ <p>
+
+🎯 Accuracy:
+
+<span id="accuracy">
+
+--
+
+</span>
+
+</p>
+
+<br>
+
+<p>
+
+🟢 Online Status:
+
+<span id="onlineStatus">
+
+Offline
+
+</span>
+
+</p>
+
+<br> 
+
+<p>
+
+📡 Status:
+
+<span id="trackingStatus">
+
+Waiting for Location...
+
+</span>
+
+</p>
+
+<button
+class="call"
+id="callBtn">
+
+📞 Call Victim
+
+</button>
+
+<button
+class="navigate"
+id="navigateBtn">
+
+🧭 Navigate
+
+</button>
+
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script type="module" src="tracker.js"></script>
+
+</body>
+
+</html>
