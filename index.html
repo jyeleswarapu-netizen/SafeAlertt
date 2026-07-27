@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>SafeAlert</title>
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+<div id="loginPage"
+style="display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;background:#070707;padding:20px;">
+
+    <h1 style="color:#1976ff;font-size:38px;">SafeAlert</h1>
+
+    <p style="color:#999;margin:15px 0 30px;">
+        Your Emergency Safety Companion
+    </p>
+
+    <input
+        id="loginEmail"
+        type="email"
+        placeholder="Email"
+        style="width:100%;max-width:350px;padding:15px;margin-bottom:15px;border:none;border-radius:12px;background:#111;color:white;">
+
+<div class="password-box">
+
+<input
+id="loginPassword"
+type="password"
+placeholder="Password"
+style="
+width:100%;
+padding:15px;
+padding-right:50px;
+border:none;
+outline:none;
+border-radius:12px;
+background:#111;
+color:white;
+box-sizing:border-box;">
+
+<span onclick="togglePassword()">
+        <i id="eyeIcon" class="material-icons">visibility</i>
+
+    </span>
+
+</div>
+    <button
+        onclick="login()"
+        style="width:100%;max-width:350px;padding:15px;background:#1976ff;color:white;border:none;border-radius:12px;font-size:18px;margin-bottom:10px;">
+        Login
+    </button>
+
+    <button
+        onclick="signup()"
+        style="width:100%;max-width:350px;padding:15px;background:#00a651;color:white;border:none;border-radius:12px;font-size:18px;">
+        Create Account
+    </button>
+
+</div>
+
+<div id="app" style="display:none;">
+<!-- SOS -->
+
+<section id="sos" class="page active">
+
+<div class="welcome-card">
+
+    <h2>👋 Welcome</h2>
+
+    <h1 id="welcomeName">User</h1>
+
+    <p>Stay Safe • SafeAlert is Active</p>
+
+</div>
+
+
+<div class="card">
+
+    <h3>📍 Live Location</h3>
+
+    <div id="location" class="location">
+
+        Waiting for GPS...
+
+    </div>
+
+</div>
+
+    <div class="sos-wrap">
+
+    <button
+
+        id="sosButton"  
+        
+        class="sos-btn"
+
+        onclick="sendSOS()">
+
+        SOS
+
+    </button>
+
+</div>
+
+<div class="stats">
+
+    <div class="stat-card">
+
+        <div class="stat-icon">👥</div>
+
+        <div id="contactCount" class="stat-number">0</div>
+
+        <div class="stat-text">Contacts</div>
+
+    </div>
+
+    <div class="stat-card">
+
+        <div class="stat-icon">🚨</div>
+
+        <div id="alertCount" class="stat-number">0</div>
+
+        <div class="stat-text">Alerts</div>
+
+    </div>
+
+</div>
+
+
+<div class="status-card">
+
+    <h3>🛡 Safe Status</h3>
+
+    <p id="statusText">
+
+        🟢 Protected
+
+    </p>
+    <button
+id="endSOSBtn"
+class="primary-btn"
+style="display:none;background:#d32f2f;margin-top:15px;"
+onclick="endEmergency()">
+
+🛑 End Emergency
+
+</button>
+
+</div>
+
+
+
+
+<p class="hold-text">
+
+Hold for Emergency
+
+</p>
+
+
+<div class="quick-actions">
+
+<button
+
+class="primary-btn"
+
+onclick="getLocation()">
+
+📍 Refresh
+
+</button>
+
+<button
+
+class="primary-btn"
+
+onclick="tab('contacts',document.querySelectorAll('.item')[1])">
+
+👥 Contacts
+
+</button>
+
+
+
+</div>
+
+</section>
+    
+<!-- CONTACTS -->
+
+<section
+id="contacts"
+class="page">
+
+<div class="title">
+
+Emergency Contacts
+
+</div>
+
+<div class="card">
+
+<input
+id="name"
+type="text"
+placeholder="Contact Name">
+
+<input
+id="phone"
+type="tel"
+placeholder="Phone Number">
+
+<button
+class="primary-btn"
+onclick="saveContact()">
+
+Save Contact
+
+</button>
+
+</div>
+
+<div
+id="contactList">
+
+</div>
+
+</section>
+
+<!-- SAFETY -->
+
+<section
+id="safety"
+class="page">
+
+<div class="title">
+
+Emergency Calls
+
+</div>
+
+<div class="sub">
+
+Quick emergency access
+
+</div>
+
+<div class="card">
+
+<button
+class="primary-btn"
+onclick="callNumber('100')">
+
+👮 Police — 100
+
+</button>
+
+<button
+class="primary-btn"
+onclick="callNumber('1098')">
+
+🧒 Child Helpline — 1098
+
+</button>
+
+<button
+class="primary-btn"
+onclick="callNumber('1091')">
+
+👩 Women Safety — 1091
+
+</button>
+
+<button
+class="primary-btn"
+onclick="callNumber('112')">
+
+🚨 National Emergency — 112
+
+</button>
+
+<button
+class="primary-btn"
+onclick="callNumber('108')">
+
+🚑 Ambulance — 108
+
+</button>
+
+<button
+class="primary-btn"
+onclick="callNumber('101')">
+
+🔥 Fire Brigade — 101
+
+</button>
+
+</div>
+
+<h3
+style="margin-top:18px">
+
+Saved Contacts
+
+</h3>
+<div class="card">
+
+
+<div
+id="safetyContacts">
+
+</div>
+</div> 
+<div class="card">  <h3>📡 Live GPS Tracker</h3>  
+
+<p id="trackingStatus">  
+    Not Sharing  
+</p>  
+
+<button  
+    class="primary-btn"  
+    onclick="startLiveTracking()">  
+
+    Start Live Tracking  
+
+</button>  
+
+<br><br>  
+
+<button
+class="primary-btn"
+style="background:#d32f2f;"
+onclick="stopLiveTracking()">
+
+Stop Sharing
+
+</button>
+
+</div>    
+<div class="card">  <h3>📍 Friend Live Location</h3>  
+
+<input  
+    id="friendUid"  
+    type="text"  
+    placeholder="Enter Friend UID">  
+
+<br><br>  
+
+<button
+class="primary-btn"
+onclick="watchFriend(document.getElementById('friendUid').value)">
+
+Track Friend
+
+</button>
+
+<br><br>
+
+<div id="friendStatus"
+style="margin:15px 0;font-weight:bold;color:#22c55e;">
+
+Waiting for friend...
+
+</div>
+
+<div id="friendTime"
+style="margin-bottom:15px;color:#94a3b8;font-size:14px;">
+
+Last updated: --
+
+</div>
+<iframe
+id="friendMap"
+width="100%"
+height="300"
+style="border:0;border-radius:12px;"
+loading="lazy">
+</iframe>
+<br><br>
+
+<a
+    id="friendMapLink"
+    target="_blank"
+    class="primary-btn"
+    style="display:inline-block;text-decoration:none;text-align:center;">
+    📍 Open in Google Maps
+</a>
+</div>
+
+</section>
+
+<!-- HISTORY -->
+
+<section
+id="history"
+class="page">
+
+<div class="title">
+
+SOS History
+
+</div>
+
+<div class="sub">
+
+Emergency records
+
+</div>
+
+<div
+id="historyList">
+
+</div>
+
+</section>
+
+<!-- PROFILE -->
+
+<section
+id="profile"
+class="page">
+
+<div class="title">
+
+Profile
+
+</div>
+
+<div class="sub">
+
+Your details for SOS sharing
+
+</div>
+
+<div
+class="profile-box">
+<div style="text-align:center;margin-bottom:25px;">
+
+    <div style="
+        width:90px;
+        height:90px;
+        margin:auto;
+        border-radius:50%;
+        background:linear-gradient(135deg,#2563eb,#1d4ed8);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:42px;
+        box-shadow:0 8px 25px rgba(37,99,235,.4);
+    ">
+        👤
+    </div>
+
+    <h2 style="margin-top:18px;" id="profileTitle">
+        User
+    </h2>
+
+    <p style="color:#9ca3af;">
+        SafeAlert Member
+    </p>
+
+</div>
+<div
+class="profile-title">
+
+Your Details
+
+</div>
+
+<div
+class="profile-sub">
+
+These details may be included in SOS alerts
+
+</div>
+
+<input
+id="profileName"
+placeholder="Full Name">
+
+<input
+id="profilePhone"
+type="tel"
+placeholder="Phone Number">
+
+<input
+id="profileEmail"
+type="email"
+placeholder="Email (Optional)">
+
+<button
+class="primary-btn"
+onclick="saveProfile()">
+Save Profile
+</button>
+
+<button
+class="primary-btn"
+style="background:#4CAF50;margin-top:12px;"
+onclick="copyUID()">
+
+📋 Copy My UID
+
+</button>
+    
+<button
+class="primary-btn"
+style="background:#2196F3;margin-top:12px;"
+onclick="shareUID()">
+
+📤 Share My UID
+
+</button>    
+    
+ <button
+class="primary-btn"
+style="background:#673AB7;margin-top:12px;"
+onclick="window.open('tracker.html?uid=' + document.getElementById('myUID').innerText,'_blank')">
+
+📍 Open My Live Tracker
+
+</button>   
+  
+ <button
+class="primary-btn"
+style="background:#d32f2f;margin-top:12px;"
+onclick="logout()">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+Logout
+
+</button>
+
+<div
+id="profileInfo"
+class="profile-info">
+
+</div>
+
+<div class="card">
+
+    <h3>Your UID</h3>
+
+    <p
+        id="myUID"
+        style="word-break:break-all;color:#00e676;">
+
+        Loading...
+
+    </p>
+
+</div>    
+  
+</section>
+
+<!-- BOTTOM NAV -->
+
+<nav
+class="bottom">
+
+<div
+class="item selected"
+onclick="tab('sos',this)">
+
+<i
+class="fa-solid fa-shield"></i>
+
+<span>SOS</span>
+
+</div>
+
+<div
+class="item"
+onclick="tab('contacts',this)">
+
+<i
+class="fa-solid fa-users"></i>
+
+<span>Contacts</span>
+
+</div>
+
+<div
+class="item"
+onclick="tab('safety',this)">
+
+<i
+class="fa-solid fa-heart"></i>
+
+<span>Safety</span>
+
+</div>
+
+<div
+class="item"
+onclick="tab('history',this)">
+
+<i
+class="fa-solid fa-clock"></i>
+
+<span>History</span>
+
+</div>
+
+<div
+class="item"
+onclick="tab('profile',this)">
+
+<i
+class="fa-solid fa-user"></i>
+
+<span>Profile</span>
+
+</div>
+
+</nav>
+<script type="module" src="auth.js"></script>
+<script type="module" src="app.js"></script>
+</div>
+</body>
+  </html>
