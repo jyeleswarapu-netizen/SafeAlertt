@@ -7,9 +7,33 @@ import {
     saveSOSHistory,
     loadSOSHistory,
     updateLiveLocation,
-    listenLiveLocation
+    listenLiveLocation,
+    setSharing
 } from "./firestore.js";
 import { auth } from "./firebase.js";
+// Android native bridge
+function isAndroidApp() {
+    return typeof window.Android !== "undefined";
+}
+
+function nativeCall(phone) {
+    if (isAndroidApp() && window.Android.callNumber) {
+        window.Android.callNumber(phone);
+        return true;
+    }
+    return false;
+}
+
+function nativeSendSMS(phoneNumbers, message) {
+    if (isAndroidApp() && window.Android.sendSMS) {
+        window.Android.sendSMS(
+            phoneNumbers.join(","),
+            message
+        );
+        return true;
+    }
+    return false;
+}
 let lat=null;
 let lng=null;
 
@@ -45,19 +69,24 @@ JSON.stringify(value)
 }
 
 /* STATS */
-
 async function updateStats() {
 
     const contacts = (await loadUserContacts()).length;
     const history = (await loadSOSHistory()).length;
 
-    if (contactCount)
-        contactCount.innerText = contacts;
+    const contactCount = document.getElementById("contactCount");
+    const alertCount = document.getElementById("alertCount");
 
-    if (alertCount)
+    if (contactCount) {
+        contactCount.innerText = contacts;
+    }
+
+    if (alertCount) {
         alertCount.innerText = history;
+    }
 
 }
+
 
 /* LOCATION */
 
@@ -222,7 +251,32 @@ async function stopLiveLocation() {
     }
 
 }
+window.updateLocationFromNative =
+async function (
+    latitude,
+    longitude,
+    accuracy,
+    time
+) {
 
+    lat = latitude;
+    lng = longitude;
+
+    await updateLiveLocation({
+
+        latitude: latitude,
+        longitude: longitude,
+        accuracy: accuracy,
+        time: time
+
+    });
+
+    console.log(
+        "Native location uploaded:",
+        latitude,
+        longitude
+    );
+};
 /* CONTACTS */
 
 async function saveContact() {
@@ -261,7 +315,7 @@ async function deleteContact(id) {
 
 async function showContacts() {
 
-    const box = contactList;
+const box = document.getElementById("contactList");
     box.innerHTML = "";
 
     const data = await loadUserContacts();
@@ -348,6 +402,7 @@ async function showProfile() {
     const p = await loadUserProfile();
 
     if (!p) {
+        const profileInfo = document.getElementById("profileInfo");
         profileInfo.innerHTML = "No profile saved";
         return;
     }
@@ -391,7 +446,8 @@ if (profileTitle) {
 
 async function showHistory(){
 
-historyList.innerHTML="";
+const historyList = document.getElementById("historyList");
+historyList.innerHTML = "";
     
 const history = await loadSOSHistory();
 
@@ -447,13 +503,7 @@ if(!confirmSOS){
     return;
 }    
     
-for (let i = 3; i >= 1; i--) {
 
-    alert("🚨 Sending SOS in " + i + "...");
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-}    
     
 const ok=
 await getLocation();
@@ -484,8 +534,20 @@ return;
 
 const p = await loadUserProfile() || {};
     
-await startLiveLocation();    
-   
+await setSharing(true);
+
+if (isAndroidApp()) {
+
+    window.Android.startLocationService(
+    auth.currentUser.uid
+);
+
+} else {
+
+    await startLiveLocation();
+
+}
+    
 const map=
 
 `https://maps.google.com/maps?q=${lat},${lng}`;
@@ -534,6 +596,18 @@ if (status) {
 
 await showHistory();    
 
+const phoneNumbers = contacts.map(x => x.phone);
+
+// Android APK → native direct SMS
+if (nativeSendSMS(phoneNumbers, msg)) {
+
+    btn.disabled = false;
+    btn.innerHTML = "SOS";
+
+    return;
+}
+    
+    
 window.location.href=
 
 `sms:${contacts.map(
@@ -549,16 +623,21 @@ btn.innerHTML = "SOS";
 
 /* CALL */
 
-function callNumber(n){
+function callNumber(n) {
 
-window.location.href=
-`tel:${n}`;
+    // Android APK
+    if (nativeCall(n)) {
+        return;
+    }
 
+    // Normal website
+    window.location.href = `tel:${n}`;
 }
 
 async function showSafety() {
 
-    safetyContacts.innerHTML = "";
+    const safetyContacts = document.getElementById("safetyContacts");
+safetyContacts.innerHTML = "";
 
     const contacts = await loadUserContacts();
 
@@ -759,16 +838,16 @@ if (trackingId !== null) return;
     );
 
 }
-
-function stopLiveTracking() {
+async function stopLiveTracking() {
 
     if (trackingId !== null) {
 
         navigator.geolocation.clearWatch(trackingId);
-
         trackingId = null;
 
     }
+
+    await setSharing(false);
 
     document.getElementById("trackingStatus").innerHTML =
         "Not Sharing";
@@ -784,32 +863,31 @@ function watchFriend(uid) {
 
     listenLiveLocation(uid, (data) => {
 
-    const status = document.getElementById("friendStatus");
+        const status = document.getElementById("friendStatus");
 
-    if (!data || !data.liveLocation) {
+        if (!data || !data.sharing || !data.liveLocation) {
 
-        status.innerHTML = "🔴 Friend Offline";
+            status.innerHTML = "🔴 Friend Offline";
 
-        return;
+            document.getElementById("friendMap").src = "";
+            document.getElementById("friendTime").innerHTML = "";
 
-    }
+            return;
+        }
 
-    status.innerHTML = "🟢 Friend Online";
-        
-    const location = data.liveLocation;   
-    document.getElementById("friendMap").src =
-`https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=16&output=embed`;    
-    const mapLink = document.getElementById("friendMapLink");
+        status.innerHTML = "🟢 Friend Online";
 
-if (mapLink) {
-    mapLink.href = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-}
-        
-    
+        const location = data.liveLocation;
 
-document.getElementById("friendTime").innerHTML =
-"Last Updated: " +
-new Date(location.time).toLocaleTimeString();
+        document.getElementById("friendMap").src =
+            `https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=16&output=embed`;
+
+        document.getElementById("friendMapLink").href =
+            `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+
+        document.getElementById("friendTime").innerHTML =
+            "Last Updated: " +
+            new Date(location.time).toLocaleTimeString();
         
 });
 
@@ -854,8 +932,18 @@ Add me in SafeAlert for live location tracking.`;
 }
 async function endEmergency() {
 
-    await stopLiveLocation();
+    if (isAndroidApp()) {
 
+        window.Android.stopLocationService();
+
+    } else {
+
+        await stopLiveLocation();
+
+    }
+
+    await setSharing(false);
+    
     document.getElementById("statusText").innerHTML = "🟢 Protected";
     document.getElementById("statusText").style.color = "#00e676";
 
