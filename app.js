@@ -1,3 +1,5 @@
+app.js
+
 import {
     saveUserProfile,
     loadUserProfile,
@@ -486,24 +488,18 @@ await updateStats();
 /* SOS */
 
 async function sendSOS(){
-
 const btn = document.getElementById("sosButton");
 
-btn.disabled = true;
-
-btn.innerHTML = "Sending...";    
-    
 const confirmSOS = confirm(
-"🚨 Are you sure you want to send an Emergency SOS?"
+    "🚨 Are you sure you want to send an Emergency SOS?"
 );
 
-if(!confirmSOS){
-    btn.disabled = false;
-    btn.innerHTML = "SOS";
+if (!confirmSOS) {
     return;
-}    
-    
+}
 
+btn.disabled = true;
+btn.innerHTML = "Sending...";
     
 const ok=
 await getLocation();
@@ -791,8 +787,12 @@ function togglePassword() {
 }
 let trackingId = null;
 
-function startLiveTracking() {
-if (trackingId !== null) return;
+async function startLiveTracking() {
+
+    if (trackingId !== null) return;
+
+    await setSharing(true);
+    
     const status = document.getElementById("trackingStatus");
 
     if (!navigator.geolocation) {
