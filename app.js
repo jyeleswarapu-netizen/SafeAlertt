@@ -548,7 +548,7 @@ const map=
 `https://maps.google.com/maps?q=${lat},${lng}`;
 
 const trackerLink =
-`https://jyeleswarapu-netizen.github.io/SafeAlert/tracker.html?uid=${auth.currentUser.uid}`;
+`https://jyeleswarapu-netizen.github.io/SafeAlertt/tracker.html?uid=${auth.currentUser.uid}`;
 
 const msg =
 
