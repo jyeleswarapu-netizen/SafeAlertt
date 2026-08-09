@@ -1,3 +1,4 @@
+
 import { auth, db } from "./firebase.js";
 
 import {
@@ -10,8 +11,7 @@ import {
   deleteDoc,
   orderBy,
   query,
-  onSnapshot,
-  serverTimestamp
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 // Save Profile
 export async function saveUserProfile(profile) {
@@ -196,6 +196,20 @@ export async function stopSharing() {
         doc(db, "users", user.uid),
         {
             sharing: false
+        },
+        { merge: true }
+    );
+}
+export async function setSharing(value) {
+
+    const user = auth.currentUser;
+
+    if (!user) return;
+
+    await setDoc(
+        doc(db, "users", user.uid),
+        {
+            sharing: value
         },
         { merge: true }
     );
