@@ -1,3 +1,4 @@
+
 import {
     listenLiveLocation
 } from "./firestore.js";
@@ -35,6 +36,13 @@ if (!uid) {
 
     listenLiveLocation(uid, (data) => {
 
+    if (!data) {
+    document.getElementById("trackingStatus").innerHTML =
+        "Waiting for Location...";
+    return;
+}
+        
+        
      if (data.sharing === false) {
     document.getElementById("trackingStatus").innerHTML =
         "❌ Emergency Ended";
@@ -45,7 +53,7 @@ if (!uid) {
     return;
 }   
         
-    if (!data || !data.liveLocation) {
+    if (!data.liveLocation) {
 
     document.getElementById("trackingStatus").innerHTML =
         "Waiting for Location...";
@@ -97,10 +105,7 @@ if (!uid) {
 
         marker.setLatLng([lat, lng]);
 
-map.flyTo([lat, lng], map.getZoom(), {
-    animate: true,
-    duration: 1.5
-});
+
 
     }
 
@@ -115,11 +120,14 @@ document
     const phone =
         document.getElementById("victimPhone").innerText;
 
-    if (phone !== "-") {
+    if (phone === "-") {
+        return;
+    }
 
-        window.location.href =
-            `tel:${phone}`;
-
+    if (window.Android && window.Android.callNumber) {
+        window.Android.callNumber(phone);
+    } else {
+        window.location.href = `tel:${phone}`;
     }
 
 };
