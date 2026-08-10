@@ -1,4 +1,3 @@
-
 import {
     saveUserProfile,
     loadUserProfile,
@@ -26,13 +25,22 @@ function nativeCall(phone) {
 }
 
 function nativeSendSMS(phoneNumbers, message) {
+
     if (isAndroidApp() && window.Android.sendSMS) {
+
+        const recipients = phoneNumbers
+            .map(phone => phone.trim())
+            .filter(phone => phone.length > 0)
+            .join(";");
+
         window.Android.sendSMS(
-            phoneNumbers.join(","),
+            recipients,
             message
         );
+
         return true;
     }
+
     return false;
 }
 let lat=null;
@@ -603,12 +611,10 @@ if (nativeSendSMS(phoneNumbers, msg)) {
 }
     
     
-window.location.href=
-
-`sms:${contacts.map(
-x=>x.phone
-).join(",")}?body=${encodeURIComponent(msg)}`;
-    
+window.location.href =
+`smsto:${contacts.map(
+    x => x.phone.trim()
+).join(";")}?body=${encodeURIComponent(msg)}`;
 
     
 btn.disabled = false;
